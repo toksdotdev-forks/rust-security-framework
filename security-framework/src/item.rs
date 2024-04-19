@@ -372,6 +372,11 @@ impl ItemSearchOptions {
                 ));
             }
 
+            params.push((
+                CFString::wrap_under_get_rule(kSecMatchCaseInsensitive),
+                CFBoolean::true_value().as_CFType(),
+            ));
+
             let params = CFDictionary::from_CFType_pairs(&params);
 
             let mut ret = ptr::null();
