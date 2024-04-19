@@ -10,6 +10,7 @@ extern "C" {
 
     pub static kSecMatchLimit: CFStringRef;
     pub static kSecMatchLimitAll: CFStringRef;
+    pub static kSecMatchCaseInsensitive: CFStringRef;
 
     pub static kSecMatchTrustedOnly: CFStringRef;
 
