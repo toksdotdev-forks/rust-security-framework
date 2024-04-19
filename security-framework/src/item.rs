@@ -139,12 +139,12 @@ pub struct ItemSearchOptions {
     limit: Option<Limit>,
     trusted_only: Option<bool>,
     label: Option<CFString>,
-    subject: Option<CFString>,
     service: Option<CFString>,
     account: Option<CFString>,
     access_group: Option<CFString>,
     pub_key_hash: Option<CFData>,
     app_label: Option<CFData>,
+    extra_params: Vec<(CFString, CFType)>
 }
 
 #[cfg(target_os = "macos")]
@@ -221,8 +221,8 @@ impl ItemSearchOptions {
     }
 
     #[inline(always)]
-    pub fn subject(&mut self, sbj: &str) -> &mut Self {
-        self.subject = Some(CFString::new(sbj));
+    pub fn extra_params(&mut self, extras: Vec<(CFString, CFType)>) -> &mut Self {
+        self.extra_params = extras;
         self
     }
 
@@ -337,13 +337,6 @@ impl ItemSearchOptions {
                 ));
             }
 
-            if let Some(ref subject) = self.subject {
-                params.push((
-                    CFString::wrap_under_get_rule(kSecMatchSubjectWholeString),
-                    subject.as_CFType(),
-                ));
-            }
-
             if let Some(ref trusted_only) = self.trusted_only {
                 params.push((
                     CFString::wrap_under_get_rule(kSecMatchTrustedOnly),
@@ -386,12 +379,7 @@ impl ItemSearchOptions {
                 ));
             }
 
-            params.push((
-                CFString::wrap_under_get_rule(kSecMatchCaseInsensitive),
-                CFBoolean::true_value().as_CFType(),
-            ));
-
-            let params = CFDictionary::from_CFType_pairs(&params);
+            params.append(&mut self.extra_params.clone());
 
             let mut ret = ptr::null();
             cvt(SecItemCopyMatching(params.as_concrete_TypeRef(), &mut ret))?;
