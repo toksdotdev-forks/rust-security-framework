@@ -372,10 +372,6 @@ impl ItemSearchOptions {
                 ));
             }
 
-            for (k , v) in extras {
-                params.push((k, v));
-            }
-
             let mut ret = ptr::null();
             cvt(SecItemCopyMatching(params.as_concrete_TypeRef(), &mut ret))?;
             if ret.is_null() {
