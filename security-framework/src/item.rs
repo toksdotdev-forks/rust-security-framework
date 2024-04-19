@@ -144,6 +144,7 @@ pub struct ItemSearchOptions {
     access_group: Option<CFString>,
     pub_key_hash: Option<CFData>,
     app_label: Option<CFData>,
+    extra_params: Vec<(CFString, CFType)>
 }
 
 #[cfg(target_os = "macos")]
@@ -219,6 +220,12 @@ impl ItemSearchOptions {
         self
     }
 
+    #[inline(always)]
+    pub fn extra_params(&mut self, extras: Vec<(CFString, CFType)>) -> &mut Self {
+        self.extra_params = extras;
+        self
+    }
+
     /// Whether untrusted certificates should be returned.
     #[inline(always)]
     pub fn trusted_only(&mut self, trusted_only: Option<bool>) -> &mut Self {
@@ -276,7 +283,7 @@ impl ItemSearchOptions {
     }
 
     /// Search for objects.
-    pub fn search(&self, extras: Vec<(CFString, CFType)>) -> Result<Vec<SearchResult>> {
+    pub fn search(&self) -> Result<Vec<SearchResult>> {
         unsafe {
             let mut params = vec![];
 
@@ -371,6 +378,10 @@ impl ItemSearchOptions {
                     app_label.as_CFType(),
                 ));
             }
+
+            params.append(&mut self.extra_params.clone());
+
+            let params = CFDictionary::from_CFType_pairs(&params);
 
             let mut ret = ptr::null();
             cvt(SecItemCopyMatching(params.as_concrete_TypeRef(), &mut ret))?;
