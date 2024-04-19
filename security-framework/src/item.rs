@@ -379,7 +379,9 @@ impl ItemSearchOptions {
                 ));
             }
 
-            params.append(&mut self.extra_params.clone());
+            for (k , v) in self.extra_params.clone() {
+                params.push((k, v));
+            }
 
             let mut ret = ptr::null();
             cvt(SecItemCopyMatching(params.as_concrete_TypeRef(), &mut ret))?;
