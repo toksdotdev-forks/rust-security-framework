@@ -139,6 +139,7 @@ pub struct ItemSearchOptions {
     limit: Option<Limit>,
     trusted_only: Option<bool>,
     label: Option<CFString>,
+    subject: Option<CFString>,
     service: Option<CFString>,
     account: Option<CFString>,
     access_group: Option<CFString>,
@@ -216,6 +217,12 @@ impl ItemSearchOptions {
     #[inline(always)]
     pub fn label(&mut self, label: &str) -> &mut Self {
         self.label = Some(CFString::new(label));
+        self
+    }
+
+    #[inline(always)]
+    pub fn subject(&mut self, sbj: &str) -> &mut Self {
+        self.subject = Some(CFString::new(sbj));
         self
     }
 
@@ -327,6 +334,13 @@ impl ItemSearchOptions {
                 params.push((
                     CFString::wrap_under_get_rule(kSecAttrLabel),
                     label.as_CFType(),
+                ));
+            }
+
+            if let Some(ref subject) = self.subject {
+                params.push((
+                    CFString::wrap_under_get_rule(kSecMatchSubjectWholeString),
+                    subject.as_CFType(),
                 ));
             }
 
